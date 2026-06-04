@@ -60,12 +60,7 @@ jobs:
       #  run: git apply ../*.patch
       - name: Build runc
         working-directory: runc
-        env:
-          GOOS: linux
-          GOARCH: loong64
-          CC: loongarch64-linux-gnu-gcc
-          CGO_ENABLED: 0
-        run: CGO_ENABLED=0 GOOS=linux GOARCH=loong64 go build -trimpath -buildmode=pie -tags "urfave_cli_no_docs" -ldflags "-X main.gitCommit=v1.4.2-0-gc241c0b" -o runc .
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=loong64 go build -trimpath -tags "urfave_cli_no_docs" -ldflags "-X main.gitCommit=v1.4.2-0-gc241c0b" -o runc .
       - name: Print binary SHA-256 checksums
         working-directory: runc
         run: |
