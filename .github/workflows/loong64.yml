@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: golang:trixie
+    container: debian:13
     permissions:
       contents: read
     steps:
@@ -49,7 +49,7 @@ jobs:
       - name: Install build tools
         run: |
           apt update
-          apt install -y git make file libseccomp-dev pkg-config gcc-loongarch64-linux-gnu binutils-loongarch64-linux-gnu libc-dev-loong64-cross
+          apt install -y git make golang file libseccomp-dev pkg-config gcc-loongarch64-linux-gnu binutils-loongarch64-linux-gnu libc-dev-loong64-cross
       - name: Clone runc
         run:
           git clone --branch ${{ env.RUNC_BRANCH }} --depth 1 https://github.com/opencontainers/runc.git runc
