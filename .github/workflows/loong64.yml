@@ -51,7 +51,7 @@ jobs:
       - name: Install build tools
         run: |
           apt update
-          apt install -y git make golang file pkg-config gcc-loongarch64-linux-gnu binutils-loongarch64-linux-gnu libc-dev-loong64-cross
+          apt install -y git make golang file gcc-loongarch64-linux-gnu binutils-loongarch64-linux-gnu libc-dev-loong64-cross
       - name: Install libseccomp for loong64
         run: |
           apt update
