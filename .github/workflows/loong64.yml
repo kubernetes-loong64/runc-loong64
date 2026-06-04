@@ -57,7 +57,7 @@ jobs:
       - name: Install build tools
         run: |
           apt update
-          apt install -y git make golang file libseccomp-dev pkg-config gcc-loongarch64-linux-gnu
+          apt install -y git make golang file libseccomp-dev pkg-config gcc-loongarch64-linux-gnu binutils-loongarch64-linux-gnu
       #- name: Apply patches
       #  working-directory: runc
       #  run: git apply ../*.patch
