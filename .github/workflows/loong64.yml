@@ -46,18 +46,15 @@ jobs:
           fi
           echo "IS_STABLE=$IS_STABLE"
           echo "IS_STABLE=$IS_STABLE" >> ${GITHUB_OUTPUT}
-      - name: Clone runc
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          repository: opencontainers/runc
-          ref: ${{ env.RUNC_BRANCH }}
-          path: runc
-      - name: ls
-        run: ls -lah
       - name: Install build tools
         run: |
           apt update
           apt install -y git make golang file libseccomp-dev pkg-config gcc-loongarch64-linux-gnu binutils-loongarch64-linux-gnu
+      - name: Clone runc
+        run:
+          git clone --branch ${{ env.RUNC_BRANCH }} --depth 1 https://github.com/opencontainers/runc.git runc
+      - name: ls
+        run: ls -lah
       #- name: Apply patches
       #  working-directory: runc
       #  run: git apply ../*.patch
