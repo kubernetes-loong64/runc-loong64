@@ -66,6 +66,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: loong64
+          CC: loongarch64-linux-gnu-gcc
         run: make
       - name: Print binary SHA-256 checksums
         working-directory: runc
