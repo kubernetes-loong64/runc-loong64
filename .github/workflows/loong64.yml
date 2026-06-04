@@ -57,7 +57,7 @@ jobs:
       - name: Install build tools
         run: |
           apt update
-          apt install -y git make golang file
+          apt install -y git make golang file libseccomp-dev
       #- name: Apply patches
       #  working-directory: runc
       #  run: git apply ../*.patch
