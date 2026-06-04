@@ -15,6 +15,8 @@ jobs:
     container: debian:13
     permissions:
       contents: read
+    env:
+      SECCOMP_VER: 2.6.0
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -49,7 +51,17 @@ jobs:
       - name: Install build tools
         run: |
           apt update
-          apt install -y git make golang file libseccomp-dev pkg-config gcc-loongarch64-linux-gnu binutils-loongarch64-linux-gnu libc-dev-loong64-cross
+          apt install -y git make golang file pkg-config gcc-loongarch64-linux-gnu binutils-loongarch64-linux-gnu libc-dev-loong64-cross
+      - name: Install libseccomp for loong64
+        run: |
+          apt update
+          apt install -y wget gperf
+          wget -q https://github.com/seccomp/libseccomp/releases/download/v${{ env.SECCOMP_VER }}/libseccomp-${{ env.SECCOMP_VER }}.tar.gz
+          tar xf libseccomp-${{ env.SECCOMP_VER }}.tar.gz
+          cd libseccomp-${{ env.SECCOMP_VER }}
+          ./configure --host=loongarch64-linux-gnu --prefix=/usr/local/loong64
+          make -j$(nproc)
+          make install
       - name: Clone runc
         run:
           git clone --branch ${{ env.RUNC_BRANCH }} --depth 1 https://github.com/opencontainers/runc.git runc
@@ -60,7 +72,7 @@ jobs:
       #  run: git apply ../*.patch
       - name: Build runc
         working-directory: runc
-        run: make GOARCH=loong64 CC=loongarch64-linux-gnu-gcc static
+        run: PKG_CONFIG_PATH=/usr/local/loong64/lib/pkgconfig make GOARCH=loong64 CC=loongarch64-linux-gnu-gcc static
       - name: Print binary SHA-256 checksums
         working-directory: runc
         run: |
