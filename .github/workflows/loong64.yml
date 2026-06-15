@@ -71,6 +71,30 @@ jobs:
           git clone --branch ${{ env.RUNC_BRANCH }} --depth 1 https://github.com/opencontainers/runc.git runc
       - name: ls
         run: ls -lah
+      - name: Install Docker CLI
+        run: |
+          apt remove $(dpkg --get-selections docker.io docker-compose docker-doc podman-docker containerd runc | cut -f1)
+          apt update
+          apt install -y ca-certificates curl
+          install -m 0755 -d /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+          chmod a+r /etc/apt/keyrings/docker.asc
+          # Add the repository to Apt sources:
+          tee /etc/apt/sources.list.d/docker.sources <<EOF
+          Types: deb
+          URIs: https://download.docker.com/linux/debian
+          Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+          Components: stable
+          Architectures: $(dpkg --print-architecture)
+          Signed-By: /etc/apt/keyrings/docker.asc
+          EOF
+          apt update
+          apt install -y docker-ce-cli
+      - name: Verify Docker installation
+        run: |
+          ls -la /run/docker.sock 2>/dev/null || echo "/run/docker.sock not found"
+          echo "DOCKER_HOST=$DOCKER_HOST"
+          docker info
       #- name: Apply patches
       #  working-directory: runc
       #  run: git apply ../*.patch
@@ -92,6 +116,45 @@ jobs:
           name: runc-loong64-binaries
           path: |
             runc/runc
+      - name: Install QEMU binfmt for loong64
+        run: |
+          docker run --privileged --rm ghcr.io/loong64/binfmt --install all
+      - name: Print runc version
+        working-directory: runc
+        run: |
+          ./runc -v
+      - name: Generate man pages
+        working-directory: runc
+        run: |
+          apt install -y help2man
+          mkdir -p man
+          help2man -n "Open Container Initiative (loong64)" -N -o man/runc.1 ./runc
+          echo "=== runc.1 ==="
+          cat man/runc.1 | head -30
+          echo "=== man file list ==="
+          find man -type f
+          sha256sum man/runc.1
+      - name: Upload man pages
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: runc-loong64-man
+          path: |
+            runc/man/*
+      - name: Export system version
+        run: |
+          cat /etc/os-release > /tmp/build-os-release.txt
+          cat /tmp/build-os-release.txt
+      - name: Export installed packages
+        run: |
+          dpkg -l > /tmp/build-installed-packages.txt
+          cat /tmp/build-installed-packages.txt
+      - name: Upload system info
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: runc-loong64-system-info
+          path: |
+            /tmp/build-installed-packages.txt
+            /tmp/build-os-release.txt
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
