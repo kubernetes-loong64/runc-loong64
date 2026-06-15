@@ -128,12 +128,12 @@ jobs:
         run: |
           apt install -y help2man
           mkdir -p man
-          help2man -n "Open Container Initiative (loong64)" -N -o man/runc.1 ./runc
-          echo "=== runc.1 ==="
-          cat man/runc.1 | head -30
+          help2man -n "Open Container Initiative (loong64)" -N -o man/runc.8 ./runc
+          echo "=== runc.8 ==="
+          cat man/runc.8 | head -30
           echo "=== man file list ==="
           find man -type f
-          sha256sum man/runc.1
+          sha256sum man/runc.8
       - name: Upload man pages
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
