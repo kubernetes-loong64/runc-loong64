@@ -123,6 +123,20 @@ jobs:
         working-directory: runc
         run: |
           ./runc -v
+      - name: Generate shell completions
+        working-directory: runc
+        run: |
+          mkdir -p completions
+          ./runc completion bash > completions/runc
+          echo "=== bash completion ==="
+          head -30 completions/runc
+          sha256sum completions/runc
+      - name: Upload bash completion
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: runc-loong64-completions
+          path: |
+            runc/completions/*
       - name: Generate man pages
         working-directory: runc
         run: |
