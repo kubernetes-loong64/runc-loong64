@@ -321,9 +321,9 @@ jobs:
           VERSION=$(echo $RUNC_BRANCH | awk -F'v' '{print $2}')
           echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> ${GITHUB_ENV}
-          DIST=$(sh -c '. /etc/os-release && echo "${ID}.${VERSION_ID}.${VERSION_CODENAME}"')
-          echo "DIST=$DIST"
-          echo "DIST=$DIST" >> ${GITHUB_ENV}
+          ID_VERSION_ID=$(sh -c '. /etc/os-release && echo "${ID}.${VERSION_ID}"')
+          echo "ID_VERSION_ID=$ID_VERSION_ID"
+          echo "ID_VERSION_ID=$ID_VERSION_ID" >> ${GITHUB_ENV}
           DEBIAN_VERSION_CODENAME=$(sh -c '. /etc/os-release && echo "${VERSION_CODENAME}"')
           echo "DEBIAN_VERSION_CODENAME=$DEBIAN_VERSION_CODENAME"
           echo "DEBIAN_VERSION_CODENAME=$DEBIAN_VERSION_CODENAME" >> ${GITHUB_OUTPUT}
@@ -352,7 +352,7 @@ jobs:
 
           cat > $PKG_ROOT/DEBIAN/control << EOF
           Package: runc
-          Version: ${{ env.VERSION }}-${{ env.RELEASE }}~${{ env.DIST }}
+          Version: ${{ env.VERSION }}-${{ env.RELEASE }}~${{ env.ID_VERSION_ID }}~${{ env.DEBIAN_VERSION_CODENAME }}
           Architecture: ${{ env.ARCH }}
           Maintainer: 徐晓伟 <xuxiaowei@xuxiaowei.com.cn>
           Description: Open Container Initiative runtime (loong64)
@@ -377,7 +377,7 @@ jobs:
       - name: List DEB files
         id: deb-file
         run: |
-          DEBIAN_DEB_NAME=runc_${{ env.VERSION }}-${{ env.RELEASE }}.${{ env.DIST }}_${{ env.ARCH }}.deb
+          DEBIAN_DEB_NAME=runc_${{ env.VERSION }}-${{ env.RELEASE }}.${{ env.ID_VERSION_ID }}.${{ env.DEBIAN_VERSION_CODENAME }}_${{ env.ARCH }}.deb
           echo "DEBIAN_DEB_NAME=$DEBIAN_DEB_NAME"
           echo "DEBIAN_DEB_NAME=$DEBIAN_DEB_NAME" >> $GITHUB_OUTPUT
           echo "DEBIAN_DEB_NAME=$DEBIAN_DEB_NAME" >> $GITHUB_ENV
