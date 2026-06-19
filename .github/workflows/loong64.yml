@@ -321,7 +321,7 @@ jobs:
           VERSION=$(echo $RUNC_BRANCH | awk -F'v' '{print $2}')
           echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> ${GITHUB_ENV}
-          DIST=$(sh -c '. /etc/os-release && echo "${ID}.${VERSION_ID}~${VERSION_CODENAME}"')
+          DIST=$(sh -c '. /etc/os-release && echo "${ID}.${VERSION_ID}.${VERSION_CODENAME}"')
           echo "DIST=$DIST"
           echo "DIST=$DIST" >> ${GITHUB_ENV}
           DEBIAN_VERSION_CODENAME=$(sh -c '. /etc/os-release && echo "${VERSION_CODENAME}"')
@@ -366,10 +366,18 @@ jobs:
           dpkg-deb --build $PKG_ROOT debs/
 
           find debs -name '*.deb'
+          # Rename: replace ~ with . in filename (GitHub releases / URLs don't like ~)
+          for f in debs/*.deb; do
+            new_name=$(echo "$f" | tr '~' '.')
+            if [ "$f" != "$new_name" ]; then
+              mv "$f" "$new_name"
+              echo "Renamed: $f -> $new_name"
+            fi
+          done
       - name: List DEB files
         id: deb-file
         run: |
-          DEBIAN_DEB_NAME=runc_${{ env.VERSION }}-${{ env.RELEASE }}~${{ env.DIST }}_${{ env.ARCH }}.deb
+          DEBIAN_DEB_NAME=runc_${{ env.VERSION }}-${{ env.RELEASE }}.${{ env.DIST }}_${{ env.ARCH }}.deb
           echo "DEBIAN_DEB_NAME=$DEBIAN_DEB_NAME"
           echo "DEBIAN_DEB_NAME=$DEBIAN_DEB_NAME" >> $GITHUB_OUTPUT
           echo "DEBIAN_DEB_NAME=$DEBIAN_DEB_NAME" >> $GITHUB_ENV
