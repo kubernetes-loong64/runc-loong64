@@ -13,12 +13,12 @@ A GitHub Actions workflow clones the specified runc version, cross-compiles with
 
 ## Branch naming
 
-Push a branch named `loong64-<runc-version>` (e.g. `loong64-v1.4.2`) to trigger a build. Append `+<build>`
-(e.g. `loong64-v1.4.2+0`) to include build metadata.
+Push a branch named `loong64-<runc-version>` (e.g. `loong64-v1.5.0`) to trigger a build. Append `+<build>`
+(e.g. `loong64-v1.5.0+0`) to include build metadata.
 
 ## [Release](https://github.com/kubernetes-loong64/runc-loong64/releases)
 
-Push a tag matching `release-loong64-<runc-version>` (e.g. `release-loong64-v1.4.2+0`) to publish
+Push a tag matching `release-loong64-<runc-version>` (e.g. `release-loong64-v1.5.0+0`) to publish
 a GitHub Release with the built binaries.
 
 The `+<build>` suffix provides build metadata (e.g. `+0`, `+1-alpha.1`).
