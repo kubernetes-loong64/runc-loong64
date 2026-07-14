@@ -22,6 +22,7 @@ jobs:
       contents: read
     env:
       SECCOMP_VER: 2.6.0
+      LIBPATHRS_VER: 0.2.5
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -79,6 +80,28 @@ jobs:
           ./configure --host=loongarch64-linux-gnu --prefix=/usr/local/loong64
           make -j$(nproc)
           make install
+      - name: Install libpathrs for loong64
+        run: |
+          apt update
+          apt install -y curl
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+          . "$HOME/.cargo/env"
+          rustup target add loongarch64-unknown-linux-gnu
+          # Configure cargo to use the loong64 cross-linker
+          mkdir -p ~/.cargo
+          cat > ~/.cargo/config.toml << EOF
+          [target.loongarch64-unknown-linux-gnu]
+          linker = "loongarch64-linux-gnu-gcc"
+          EOF
+          # Clone and cross-compile libpathrs
+          git clone --branch v${{ env.LIBPATHRS_VER }} --depth 1 https://github.com/cyphar/libpathrs.git /tmp/libpathrs
+          cd /tmp/libpathrs
+          cargo build --target=loongarch64-unknown-linux-gnu --release
+          ./install.sh --rust-target=loongarch64-unknown-linux-gnu --prefix=/usr/local/loong64
+          # Verify installation
+          ls -la /usr/local/loong64/lib/libpathrs.a
+          echo "=== pathrs.pc ==="
+          cat /usr/local/loong64/lib/pkgconfig/pathrs.pc
       - name: Clone runc
         run:
           git clone --branch ${{ env.RUNC_BRANCH }} --depth 1 https://github.com/opencontainers/runc.git runc
