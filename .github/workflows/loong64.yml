@@ -96,7 +96,7 @@ jobs:
           # Clone and cross-compile libpathrs
           git clone --branch v${{ env.LIBPATHRS_VER }} --depth 1 https://github.com/cyphar/libpathrs.git /tmp/libpathrs
           cd /tmp/libpathrs
-          cargo build --target=loongarch64-unknown-linux-gnu --release
+          cargo rustc --target=loongarch64-unknown-linux-gnu --release --features=capi --crate-type=staticlib
           ./install.sh --rust-target=loongarch64-unknown-linux-gnu --prefix=/usr/local/loong64
           # Verify installation
           ls -la /usr/local/loong64/lib/libpathrs.a
